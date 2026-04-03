@@ -1,0 +1,381 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap');
+
+  #jbc * { box-sizing: border-box; margin: 0; padding: 0; }
+  #jbc {
+    font-family: 'Outfit', sans-serif;
+    background: #0a0c0f;
+    color: #e8e4dc;
+    min-height: 600px;
+  }
+
+  /* NAV */
+  .n {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,12,15,0.94);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 1.5rem; height: 52px; gap: 8px;
+  }
+  .n-logo { font-family: 'DM Serif Display', serif; font-size: 17px; color: #c8b897; flex-shrink: 0; }
+  .n-links { display: flex; gap: 4px; flex-wrap: wrap; }
+  .nb {
+    background: none; border: none; cursor: pointer;
+    font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 400;
+    color: #6a6860; padding: 5px 12px; border-radius: 20px;
+    transition: all 0.18s; letter-spacing: 0.02em; white-space: nowrap;
+  }
+  .nb:hover { color: #e8e4dc; background: rgba(255,255,255,0.06); }
+  .nb.on { color: #c8b897; background: rgba(200,184,151,0.12); }
+
+  /* VIEWS */
+  .v { display: none; }
+  .v.show { display: block; }
+
+  /* wrap */
+  .w { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+  /* section label */
+  .sl {
+    font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: #c8b897; margin-bottom: 1.75rem;
+    padding-bottom: 0.5rem; border-bottom: 1px solid rgba(200,184,151,0.12);
+  }
+
+  /* ── HERO ── */
+  .hero { display: grid; grid-template-columns: 1fr 260px; gap: 2.5rem; padding: 3rem 1.5rem 1.5rem; max-width: 900px; margin: 0 auto; }
+  .h-eye { font-family: 'DM Mono', monospace; font-size: 10px; color: #c8b897; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .h-name { font-family: 'DM Serif Display', serif; font-size: 44px; color: #f0ebe0; line-height: 1.1; margin-bottom: 0.35rem; }
+  .h-role { font-size: 13px; color: #6a6860; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1.25rem; }
+  .h-about { font-size: 13px; line-height: 1.78; color: #8a8680; border-left: 2px solid rgba(200,184,151,0.2); padding-left: 1rem; }
+  .h-contact { display: flex; flex-direction: column; gap: 6px; margin-top: 1.25rem; }
+  .h-contact a, .h-contact span { font-family: 'DM Mono', monospace; font-size: 11px; color: #6a6860; text-decoration: none; }
+  .h-contact a:hover { color: #c8b897; }
+
+  /* sidebar */
+  .sb { display: flex; flex-direction: column; gap: 1.5rem; }
+  .sb h3 { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: #c8b897; margin-bottom: 0.65rem; }
+  .skb { margin-bottom: 7px; }
+  .skl { display: flex; justify-content: space-between; font-size: 11px; color: #7a7870; margin-bottom: 3px; }
+  .skt { height: 2px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; }
+  .skf { height: 100%; border-radius: 2px; background: linear-gradient(90deg,#c8b897,#a89060); transition: width 1.2s cubic-bezier(.4,0,.2,1); }
+  .aw { font-size: 11px; color: #7a7870; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .aw strong { color: #c8b897; font-weight: 500; display: block; font-size: 12px; }
+  .tag { font-size: 10px; color: rgba(200,184,151,0.65); background: rgba(200,184,151,0.08); border-radius: 3px; padding: 2px 7px; display: inline-block; margin: 2px 2px 0 0; }
+  .quote { max-width: 900px; margin: 0 auto; padding: 0.75rem 1.5rem 2rem; }
+  .quote blockquote { font-family: 'DM Serif Display', serif; font-style: italic; font-size: 14px; color: rgba(200,184,151,0.4); border-left: 1px solid rgba(200,184,151,0.15); padding-left: 1rem; line-height: 1.7; }
+
+  /* ── EXP TABS ── */
+  .etabs { display: flex; gap: 6px; margin-bottom: 1.75rem; }
+  .etb {
+    background: none; border: 1px solid rgba(255,255,255,0.08); cursor: pointer;
+    font-family: 'Outfit', sans-serif; font-size: 12px; color: #6a6860;
+    padding: 5px 14px; border-radius: 20px; transition: all 0.18s;
+  }
+  .etb:hover { color: #e8e4dc; border-color: rgba(200,184,151,0.2); }
+  .etb.on { color: #c8b897; border-color: rgba(200,184,151,0.35); background: rgba(200,184,151,0.07); }
+  .epane { display: none; }
+  .epane.show { display: block; }
+
+  /* timeline */
+  .tl { position: relative; padding-left: 1.5rem; }
+  .tl::before { content:''; position:absolute; left:0; top:6px; bottom:0; width:1px; background:linear-gradient(to bottom,rgba(200,184,151,0.35),transparent); }
+  .job { position:relative; padding-bottom:2rem; cursor:pointer; }
+  .job::before { content:''; position:absolute; left:-1.5rem; top:6px; width:6px; height:6px; border-radius:50%; background:#1a1c1f; border:1.5px solid rgba(200,184,151,0.3); transition:all 0.2s; }
+  .job:hover::before, .job.open::before { background:#c8b897; border-color:#c8b897; }
+  .jd { font-family:'DM Mono',monospace; font-size:10px; color:#5a5850; margin-bottom:3px; }
+  .jt { font-size:14px; font-weight:500; color:#e0dbd0; margin-bottom:2px; }
+  .jo { font-size:12px; color:#c8b897; font-weight:300; }
+  .jb { overflow:hidden; max-height:0; transition:max-height 0.4s ease; }
+  .job.open .jb { max-height:800px; }
+  .jb ul { list-style:none; padding:0; margin-top:0.6rem; }
+  .jb li { font-size:12px; color:#6a6860; line-height:1.65; padding:2px 0 2px 1rem; position:relative; }
+  .jb li::before { content:'›'; position:absolute; left:0; color:rgba(200,184,151,0.35); }
+
+  /* ── PROJECTS ── */
+  .cat-label { font-family:'DM Mono',monospace; font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:#5a5850; margin:1.75rem 0 0.75rem; }
+  .cat-label:first-child { margin-top:0; }
+  .pg { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:0.75rem; }
+  .pt {
+    background:#101316; border:1px solid rgba(255,255,255,0.07); border-radius:8px;
+    padding:1rem 1.1rem; transition:border-color 0.2s, transform 0.18s;
+    text-decoration:none; display:block; position:relative; overflow:hidden;
+  }
+  .pt::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#c8b897,#a89060); opacity:0; transition:opacity 0.2s; }
+  .pt:hover { border-color:rgba(200,184,151,0.22); transform:translateY(-2px); }
+  .pt:hover::before { opacity:1; }
+  .pt-name { font-size:13px; font-weight:500; color:#d8d4cc; line-height:1.4; }
+  .pt-cat { font-family:'DM Mono',monospace; font-size:9px; color:rgba(200,184,151,0.5); margin-top:4px; }
+
+  /* ── EDU ── */
+  .eg { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:0.75rem; margin-bottom:2rem; }
+  .ec { background:#101316; border:1px solid rgba(255,255,255,0.07); border-radius:8px; padding:1rem; }
+  .ey { font-family:'DM Mono',monospace; font-size:10px; color:rgba(200,184,151,0.45); margin-bottom:4px; }
+  .ed { font-size:13px; font-weight:500; color:#e0dbd0; margin-bottom:2px; }
+  .es { font-size:12px; color:#7a7870; }
+  .ef { font-size:11px; color:rgba(200,184,151,0.5); margin-top:3px; }
+  .pub { font-size:12px; color:#5a5850; line-height:1.65; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+  .pub:last-child { border-bottom:none; }
+  .pub a { color:#8a8680; text-decoration:none; }
+  .pub a:hover { color:#c8b897; }
+
+  @media(max-width:620px){
+    .hero{grid-template-columns:1fr;}
+    .h-name{font-size:34px;}
+  }
+</style>
+
+<div id="jbc">
+  <nav class="n">
+    <span class="n-logo">JBC</span>
+    <div class="n-links">
+      <button class="nb on" onclick="sv('resume',this)">Resume</button>
+      <button class="nb" onclick="sv('projects',this)">Projects</button>
+      <button class="nb" onclick="sv('education',this)">Education</button>
+    </div>
+  </nav>
+
+  <!-- RESUME -->
+  <div id="v-resume" class="v show">
+    <div class="hero">
+      <div>
+        <div class="h-eye">Engineering Generalist · Silver Spring, MD</div>
+        <div class="h-name">Jason Carneal</div>
+        <div class="h-role">Senior Data Scientist &amp; Deputy Chief Data Officer</div>
+        <p class="h-about">Self-motivated engineer, programmer, project manager, naval architect, and data scientist. Primary focus on advancing AI and data analytics to improve efficiency and maximize automation — creating tools that save thousands of hours of manual labor annually. Has led teams of up to 100 scientists, engineers, and technicians on naval ship systems and commercial nuclear regulation.</p>
+        <div class="h-contact">
+          <span>📍 Silver Spring, MD · USA</span>
+          <a href="tel:2404722412">(240) 472-2412</a>
+          <a href="mailto:jbc4@pm.me">jbc4@pm.me</a>
+          <a href="https://ecfr2frn.netlify.app" target="_blank">eCFR Citation Reviewer ↗</a>
+        </div>
+      </div>
+      <div class="sb">
+        <div>
+          <h3>Technical Skills</h3>
+          <div id="skill-bars"></div>
+        </div>
+        <div>
+          <h3>NRC Qualifications</h3>
+          <div>
+            <span class="tag">Rulemaking PM</span>
+            <span class="tag">Licensing PM</span>
+            <span class="tag">Reactor Tech Reviewer</span>
+            <span class="tag">OpE Engineer</span>
+          </div>
+        </div>
+        <div>
+          <h3>Awards</h3>
+          <div class="aw"><strong>Meritorious Service</strong>NRC, 2024</div>
+          <div class="aw"><strong>Team Awards</strong>NRC, 2008–2026</div>
+          <div class="aw"><strong>Individual Performance</strong>NRC, 2008–2026</div>
+        </div>
+        <div>
+          <h3>General Skills</h3>
+          <div>
+            <span class="tag">Project Management</span>
+            <span class="tag">Artificial Intelligence</span>
+            <span class="tag">Data Analysis</span>
+            <span class="tag">Programming</span>
+            <span class="tag">Communication</span>
+            <span class="tag">Critical Thinking</span>
+            <span class="tag">Adaptability</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="quote">
+      <blockquote>"Inside every cynical person, there is a disappointed idealist." — George Carlin</blockquote>
+    </div>
+    <div class="w">
+      <div class="sl">Work Experience</div>
+      <div class="etabs">
+        <button class="etb on" onclick="se('recent',this)">Recent (2024–Present)</button>
+        <button class="etb" onclick="se('prev',this)">Previous Experience</button>
+      </div>
+      <div id="ep-recent" class="epane show">
+        <div class="tl" id="tl-recent"></div>
+      </div>
+      <div id="ep-prev" class="epane">
+        <div class="tl" id="tl-prev"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div id="v-projects" class="v">
+    <div class="w">
+      <div class="sl">Public Projects &amp; Work</div>
+      <div id="proj-out"></div>
+    </div>
+  </div>
+
+  <!-- EDUCATION -->
+  <div id="v-education" class="v">
+    <div class="w">
+      <div class="sl">Education</div>
+      <div class="eg" id="edu-grid"></div>
+      <div class="sl" style="margin-top:2rem;">Publications &amp; Patent</div>
+      <div id="pub-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const skills=[
+  {n:'M365 Apps',p:95},{n:'Power BI',p:95},{n:'Python',p:90},{n:'AI',p:90},
+  {n:'Power Automate',p:85},{n:'JS',p:80},{n:'Tableau',p:80},
+  {n:'SQL',p:75},{n:'HTML',p:75},{n:'CSS',p:70}
+];
+
+const recentJobs=[
+  {dates:'03/2026 – Present',title:'Senior Data Scientist (Deputy Chief Data Officer)',org:'Nuclear Regulatory Commission',bullets:['Lead AI implementation in licensing and oversight to improve agency efficiency.','Manage AP1000 Design Certification Document, Revision 20 amendment review.','Oversee data governance policies and procedures for quality, security, and compliance.','Align agency data and AI strategies with business objectives and goals.','Lead data consolidation initiatives to extract actionable insights and drive innovation.','Coordinate data integration and consistency across departments and subject matter experts.','Oversee implementation of data technologies to enhance processing and analysis capabilities.']},
+  {dates:'10/2025 – 03/2026',title:'Project Manager (Licensing / Data and AI)',org:'Nuclear Regulatory Commission',bullets:['Led advanced and new reactor licensing including microreactors, 10 CFR Part 52 design certification, and combined license applications.','Developed novel AI processes to expedite licensing reviews.','Provided AI recommendations for efficient nuclear power reactor licensing.','Trained and led a data analytics and AI staff team.','Consolidated project information into high-impact visualizations across all new reactor licensing projects.']},
+  {dates:'04/2025 – 10/2025',title:'Reactor Systems Engineer (Data Scientist)',org:'Nuclear Regulatory Commission',bullets:["Organized and led NRR's regulatory and operating experience AI program.",'Developed novel AI processes to expedite regulatory reviews.','Provided AI recommendations for EO 14300 wholesale regulatory review.','Curated high-value datasets for AI deployment throughout the agency.','Responded to high-pressure requests for novel data analytics and AI applications.']},
+  {dates:'10/2024 – 03/2025',title:'Deputy Chief Data Officer (Senior Data Scientist)',org:'Nuclear Regulatory Commission',bullets:['Oversaw data governance policies and procedures.','Formulated and executed the agency data strategy aligned with business objectives.','Led data analytics initiatives to extract actionable insights.','Coordinated data integration and consistency across the organization.','Provided program insight to IT staff to harmonize technology with agency goals.']}
+];
+
+const prevJobs=[
+  {dates:'2019 – 2024',title:'Reactor Systems Engineer (Data Scientist)',org:'Nuclear Regulatory Commission',bullets:['Applied advanced data analytics in Python and Azure for commercial nuclear operating experience insights.','Produced Power BI and Tableau visualizations for data-driven management decisions.','Managed and maintained an internal hub site for reactor oversight data products.','Maintained 20 internal data visualizations and backend data processing.','Trained staff in data analysis and visualization tools.']},
+  {dates:'2017 – 2019',title:'Reactor Systems Engineer',org:'Nuclear Regulatory Commission',bullets:['Reviewed operating experience (OpE) from power reactors to assess significance.','Updated guidance documents including the IOEB Handbook and LIC-504 Appendix G.','Collaborated with IAEA and other international agencies on operating experience.','Briefed senior and regional management on emergent OpE trends.']},
+  {dates:'2014 – 2017',title:'Project Manager',org:'Nuclear Regulatory Commission',bullets:['Managed complex, publicly controversial rulemaking projects including the power reactor decommissioning rule.','Developed SECY papers providing technical staff options and recommendations to the NRC Commission.','Organized and led public meetings with external stakeholders including industry and NGOs.','Produced regulatory bases, proposed rules, final rules, and regulatory guides.']},
+  {dates:'2013 – 2014',title:'Mechanical Engineer',org:'Nuclear Regulatory Commission',bullets:['Performed technical safety evaluations on topical reports, license amendments, and relief requests.','Represented NRC on ASME OM Code subgroup on air-operated valves (AOVs).','Organized joint NRC/ASME symposium on pumps, valves, and inservice testing.','Updated NRC guidance for the public and industry on nuclear component regulatory issues.']},
+  {dates:'2011 – 2013',title:'Naval Architect',org:'Naval Surface Warfare Center, Carderock Division',bullets:['Managed a multi-year, multi-million dollar program on advanced surface combatants (RDT&E and SCN funding).','Oversaw ~50 engineers/technicians developing complex technical products for U.S. advanced surface combatants.','Applied DOD Risk Management for submarine and surface ship programs.','Reported program status to NAVSEA sponsors and Navy admiralty.']},
+  {dates:'2009 – 2013',title:'Co-Founder',org:'Bettica Services, LLC',bullets:['Co-founded an arborist company in Northern Virginia, operating for five years.','Led crews performing tree pruning, removal, and stump grinding with zero job-site injuries.','Supported company growth through customer interfacing and job quoting.']},
+  {dates:'2008 – 2011',title:'Project Manager',org:'Nuclear Regulatory Commission',bullets:['Managed technical reviews on next-generation nuclear reactors — reactor design, containment, accident analyses, QA, and PRA.','Participated in design certification and combined license application reviews.','Delivered high-priority, technically complex products under considerable schedule pressure.']},
+  {dates:'2004 – 2008',title:'Mechanical Engineer',org:'Naval Surface Warfare Center, Carderock Division',bullets:['Performed hydrodynamic experiments on bow waves, submarine models, and full-scale surface ships.','Specialized in PIV, LIF, and global laser rangefinder profilometry (GLRP) optical measurement systems.','Developed patented software algorithms for novel optical measurement systems.','Produced ONR-funded Navy research proposals.']},
+  {dates:'2002 – 2004',title:'Graduate Research Assistant',org:'Virginia Tech',bullets:['Performed research on novel digital image processing methods for particle image velocimetry.','Led work with university-associated companies to produce advanced PIV software.','Supported multiple doctoral candidates on experiments and dissertation processing.']},
+  {dates:'2001 – 2002',title:'Graduate Research Assistant',org:'University of Michigan',bullets:['Performed research on direct brain interfaces for epilepsy treatments.','Worked with patients in clinical settings to gather electrical impulse data.','Developed software and instrumentation to interface with medical equipment.']},
+  {dates:'1997 – 2001',title:'Undergraduate Student, Physics & Math Tutor',org:'Virginia Tech',bullets:['Earned Summa Cum Laude B.S. in Engineering Mechanics (Applied Physics) with Mathematics Minor.','Tutored 100- and 200-level physics and mathematics courses.','Published a senior design project on mechanical automation of electrostatic self-assembly for ultrathin film applications.']}
+];
+
+const projects=[
+  {cat:'Publicly-Available Projects',items:[
+    {name:'AI for Wholesale Regulatory Review',link:'https://www.federalregister.gov/documents/2025/05/29/2025-09798/ordering-the-reform-of-the-nuclear-regulatory-commission'},
+    {name:'Document / Dataset Automation',link:'https://usnrc.sharepoint.com/teams/EXTERNAL-SHARING-NEI-Data/'},
+    {name:'Leveraging NRC Data',link:'https://www.nrc.gov/public-involve/conference-symposia/ric/past/2025/technical-sessions/sessionabstract5.html'},
+    {name:'Machine Learning / OpE',link:'https://www.nrc.gov/docs/ML2127/ML21277A122.pdf'},
+    {name:'OL Exam Generator',link:'https://www.nrc.gov/reactors/operator-licensing/operator-license-exam-outline-generator.html'},
+    {name:'Operator Reactor Scram Trending',link:'https://www.nrc.gov/reactors/operating/ops-experience/scrams.html'},
+    {name:'NRC Findings / Violations Search',link:'https://www.nrc.gov/reactors/operating/oversight/findings-search.html'},
+    {name:'NRC High-Value Datasets',link:'https://www.nrc.gov/data/index.html'},
+    {name:'eCFR Citation Retriever',link:'https://ecfr2frn.netlify.app'},
+    {name:'NRC Rulemaking (ADAMS)',link:'https://adams-search.nrc.gov/results/%257B%2522keywords%2522%253A%2522Carneal%2522%252C%2522legacyLibFilter%2522%253Atrue%252C%2522mainLibFilter%2522%253Atrue%252C%2522any%2522%253A%255B%257B%2522propertyItem%2522%253A%2522%2522%252C%2522keywords%2522%253A%2522%2522%252C%2522startDate%2522%253A%2522%2522%252C%2522endDate%2522%253A%2522%2522%252C%2522dateOperator%2522%253A%2522between%2522%252C%2522textOperator%2522%253A%2522contains%2522%252C%2522isDate%2522%253Afalse%257D%255D%252C%2522all%2522%253A%255B%257B%2522propertyItem%2522%253A%252200603cf1-0faa-41d8-b76f-7ada7b1b3dcd%2522%252C%2522keywords%2522%253A%2522Rule%2522%252C%2522startDate%2522%253A%2522%2522%252C%2522endDate%2522%253A%2522%2522%252C%2522dateOperator%2522%253A%2522between%2522%252C%2522textOperator%2522%253A%2522contains%2522%252C%2522isDate%2522%253Afalse%257D%255D%257D'},
+    {name:'NRC/ASME IST Conference',link:'https://www.nrc.gov/reading-rm/doc-collections/nuregs/conference/cp0152/v9/index.html'},
+    {name:'NRC Use of IST Programs',link:'https://ebooks.asmedigitalcollection.asme.org/PVS/proceedings/NRC2014/99328/269/277180'},
+    {name:'NRC AOV IST Perspectives',link:'https://www.researchgate.net/publication/333125641_Regulatory_Perspectives_on_ASME_OM_Code_Mandatory_Appendix_IV_Revision_0_Inservice_Testing_of_Air-Operated_Valves_in_Light-Water_Reactor_Nuclear_Power_Plants'},
+    {name:'U.S. EPR Design Certification',link:'https://adams-search.nrc.gov/results/%257B%2522keywords%2522%253A%2522Carneal%2522%252C%2522legacyLibFilter%2522%253Atrue%252C%2522mainLibFilter%2522%253Atrue%252C%2522any%2522%253A%255B%257B%2522propertyItem%2522%253A%2522%2522%252C%2522keywords%2522%253A%2522%2522%252C%2522startDate%2522%253A%2522%2522%252C%2522endDate%2522%253A%2522%2522%252C%2522dateOperator%2522%253A%2522between%2522%252C%2522textOperator%2522%253A%2522contains%2522%252C%2522isDate%2522%253Afalse%257D%255D%252C%2522all%2522%253A%255B%257B%2522propertyItem%2522%253A%252200603cf1-0faa-41d8-b76f-7ada7b1b3dcd%2522%252C%2522keywords%2522%253A%2522U.S.%2520EPR%2522%252C%2522startDate%2522%253A%2522%2522%252C%2522endDate%2522%253A%2522%2522%252C%2522dateOperator%2522%253A%2522between%2522%252C%2522textOperator%2522%253A%2522contains%2522%252C%2522isDate%2522%253Afalse%257D%252C%257B%2522propertyItem%2522%253A%2522%2522%252C%2522keywords%2522%253A%2522%2522%252C%2522startDate%2522%253A%2522%2522%252C%2522endDate%2522%253A%2522%2522%252C%2522dateOperator%2522%253A%2522between%2522%252C%2522textOperator%2522%253A%2522contains%2522%252C%2522isDate%2522%253Afalse%257D%255D%257D'},
+    {name:'GLRP Patent (US 7,519,502)',link:'https://patentimages.storage.googleapis.com/7d/73/17/31b4c3679961ca/US7519502.pdf'},
+    {name:'NUREG/CR-6916 GSI-191 Coating Test',link:'https://www.nrc.gov/docs/ML0702/ML070220061.pdf'},
+    {name:'Roll Damping Research',link:'https://asmedigitalcollection.asme.org/OMAE/proceedings/OMAE2007/42703/561/318309'},
+    {name:'DDG-1000 HWG/SOE Program',link:'https://www.esd.whs.mil/Portals/54/Documents/FOID/Reading%20Room/Selected_Acquisition_Reports/FY_2019_SARS/20-F-0568_DOC_26_DDG_1000_SAR_Dec_2019_Full.pdf'},
+    {name:'Virginia Class Propulsor PM',link:'https://www.navsea.navy.mil/Media/News/Article/4152967/naval-foundry-and-propeller-center-delivers-final-propulsor-component-for-first/'},
+    {name:'PIV / Machine Vision Research',link:'https://www.researchgate.net/scientific-contributions/Jason-B-Carneal-2005601620'},
+    {name:'Direct Brain Interface Research',link:'https://web.eecs.umich.edu/~fessler/papers/lists/files/abs/01/nips,levine.pdf'}
+  ]},
+  {cat:'Hobbies &amp; Interests',items:[
+    {name:'Thought / The Why Files',link:'https://www.youtube.com/@TheWhyFiles'},
+    {name:'Helldivers 2 (YouTube)',link:'https://www.youtube.com/@cloudenvy1440'},
+    {name:'Video Editing',link:'https://www.youtube.com/@cloudenvy1440'},
+    {name:'Data Visualization (Tableau Public)',link:'https://public.tableau.com/app/profile/jason.carneal/vizzes'},
+    {name:'Gardening',link:'https://extension.umd.edu/resource/vegetable-planting-calendar'}
+  ]}
+];
+
+const education=[
+  {year:'1997–2001',deg:'B.S. Summa Cum Laude',school:'Virginia Tech',field:'Engineering Mechanics · Minor: Mathematics'},
+  {year:'2001–2004',deg:'M.S.',school:'Virginia Tech',field:'Engineering Mechanics'},
+  {year:'2001–2002',deg:'Graduate Research',school:'University of Michigan',field:'Biomedical Engineering / Brain Interfaces'},
+  {year:'In progress',deg:'Ph.D. Candidate',school:'University of Maryland',field:'Mechanical Engineering'},
+  {year:'2019',deg:'Certificate',school:'General Assembly',field:'Data Science'},
+  {year:'2021',deg:'Certificate',school:'General Assembly',field:'JavaScript'},
+  {year:'During HS',deg:'Coursework',school:'Univ. of Richmond / Randolph-Macon / VCU',field:'Dual enrollment'},
+  {year:'1997',deg:'Valedictorian',school:'PHHS',field:'Patrick Henry High School'}
+];
+
+const pubs=[
+  {txt:'NRC Rulemaking Documents Produced',link:'https://adams-search.nrc.gov/results/%257B%2522keywords%2522%253A%2522Carneal%2522%252C%2522legacyLibFilter%2522%253Atrue%252C%2522mainLibFilter%2522%253Atrue%252C%2522any%2522%253A%255B%257B%2522propertyItem%2522%253A%2522%2522%252C%2522keywords%2522%253A%2522%2522%252C%2522startDate%2522%253A%2522%2522%252C%2522endDate%2522%253A%2522%2522%252C%2522dateOperator%2522%253A%2522between%2522%252C%2522textOperator%2522%253A%2522contains%2522%252C%2522isDate%2522%253Afalse%257D%255D%252C%2522all%2522%253A%255B%257B%2522propertyItem%2522%253A%252200603cf1-0faa-41d8-b76f-7ada7b1b3dcd%2522%252C%2522keywords%2522%253A%2522Rule%2522%252C%2522startDate%2522%253A%2522%2522%252C%2522endDate%2522%253A%2522%2522%252C%2522dateOperator%2522%253A%2522between%2522%252C%2522textOperator%2522%253A%2522contains%2522%252C%2522isDate%2522%253Afalse%257D%255D%257D'},
+  {txt:'EPR Design Certification Public Documents Authored',link:'https://adams-search.nrc.gov/results/%257B%2522keywords%2522%253A%2522Carneal%2522'},
+  {txt:'NRC Information Notice 2019-02 — Emergency Diesel Generator Excitation System Diode Failures',link:'https://www.nrc.gov/docs/ML1825/ML18250A178.pdf'},
+  {txt:'Draft Regulatory Basis for RIN 3150-AJ59 — Regulatory Improvements for Decommissioning Power Reactors',link:'https://www.nrc.gov/waste/decommissioning/reg-guides-comm/regulations/reg-improv-trans-to-decom.html'},
+  {txt:'ANPR for RIN 3150-AJ59 — Regulatory Improvements for Decommissioning Power Reactors, November 19, 2015',link:'https://www.nrc.gov/docs/ML1516/ML15167A002.pdf'},
+  {txt:'SECY-15-0014 — Anticipated Schedule and Resources for Power Reactor Decommissioning Rulemaking, January 30, 2015',link:'https://www.nrc.gov/docs/ML1508/ML15082A089.pdf'},
+  {txt:'NUREG/CP-0152, Vol. 9 — Proceedings of the 12th NRC/ASME Symposium on Valves, Pumps, and Inservice Testing',link:'https://www.nrc.gov/reading-rm/doc-collections/nuregs/conference/cp0152/v9/index.html'},
+  {txt:'Carneal, J.B. (2014) "Regulatory Perspectives on the Use of Inservice Testing Programs in the Nuclear Industry"',link:'https://ebooks.asmedigitalcollection.asme.org/PVS/proceedings/NRC2014/99328/269/277180'},
+  {txt:'Carneal, J.B. (2014) "NRC Perspective on ASME OM Code, Mandatory Appendix IV — Inservice Testing of Air-Operated Valves"',link:'https://www.researchgate.net/publication/333125641'},
+  {txt:'Carneal et al. (2008) "Unsteady Bow Wave Dynamics of Simple Hull Geometries" — ASME FESC, Jacksonville, FL',link:null},
+  {txt:'Carneal et al. (2008) "Infrared Global Laser Rangefinder Profilometry: Development and Applications" — ASME FESC',link:null},
+  {txt:'Carneal & Atsavapranee (2006) "Global Laser Rangefinder Profilometry: Initial Test and Uncertainty Analysis" — ASME European Fluids, Miami, FL',link:null},
+  {txt:'Carneal et al. (2005) "A Global Laser Range Profilometry System for 3D Wave Surface Measurement" — ASME FESC, Houston, TX',link:null},
+  {txt:'Carneal, J.B. (2004) "Validation and Integration of a Novel Flow-IQ System" — Masters Thesis, Virginia Tech',link:null},
+  {txt:'Surface Profile Measurement Method — U.S. Patent No. US 7,519,502 B1, April 14, 2009',link:'https://patentimages.storage.googleapis.com/7d/73/17/31b4c3679961ca/US7519502.pdf'}
+];
+
+function sv(name,btn){
+  document.querySelectorAll('.v').forEach(v=>v.classList.remove('show'));
+  document.getElementById('v-'+name).classList.add('show');
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function se(name,btn){
+  document.querySelectorAll('.epane').forEach(p=>p.classList.remove('show'));
+  document.getElementById('ep-'+name).classList.add('show');
+  document.querySelectorAll('.etb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function mkTL(id,jobs){
+  const c=document.getElementById(id);
+  c.innerHTML=jobs.map((j,i)=>`
+    <div class="job" id="${id}-${i}" onclick="this.classList.toggle('open')">
+      <div class="jd">${j.dates}</div>
+      <div class="jt">${j.title}</div>
+      <div class="jo">${j.org}</div>
+      <div class="jb"><ul>${j.bullets.map(b=>`<li>${b}</li>`).join('')}</ul></div>
+    </div>`).join('');
+}
+
+function mkSkills(){
+  const c=document.getElementById('skill-bars');
+  c.innerHTML=skills.map(s=>`
+    <div class="skb">
+      <div class="skl"><span>${s.n}</span><span>${s.p}%</span></div>
+      <div class="skt"><div class="skf" style="width:0" data-w="${s.p}%"></div></div>
+    </div>`).join('');
+  setTimeout(()=>{c.querySelectorAll('.skf').forEach(e=>{e.style.width=e.dataset.w;});},250);
+}
+
+function mkProjects(){
+  const out=document.getElementById('proj-out');
+  out.innerHTML=projects.map(cat=>`
+    <div class="cat-label">${cat.cat}</div>
+    <div class="pg">${cat.items.map(p=>`
+      <a class="pt" href="${p.link}" target="_blank">
+        <div class="pt-name">${p.name}</div>
+        <div class="pt-cat">${cat.cat.replace(/&amp;/,'&')} ↗</div>
+      </a>`).join('')}
+    </div>`).join('');
+}
+
+function mkEdu(){
+  document.getElementById('edu-grid').innerHTML=education.map(e=>`
+    <div class="ec">
+      <div class="ey">${e.year}</div>
+      <div class="ed">${e.deg}</div>
+      <div class="es">${e.school}</div>
+      <div class="ef">${e.field}</div>
+    </div>`).join('');
+  document.getElementById('pub-list').innerHTML=pubs.map(p=>
+    `<div class="pub">${p.link?`<a href="${p.link}" target="_blank">${p.txt} ↗</a>`:p.txt}</div>`
+  ).join('');
+}
+
+mkSkills();
+mkTL('tl-recent',recentJobs);
+mkTL('tl-prev',prevJobs);
+mkProjects();
+mkEdu();
+</script>
