@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Efficiencies Realized</title>
+  <meta name="description" content="Jason Carneal — summary of efficiencies realized in FY26 through automation, data visualization and AI-assisted analysis.">
+  <link rel="icon" type="image/png" href="static/favicon64.png"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Serif:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+
+<style>
+/* ------------------------------------------------------------------
+   Tokens (shared with index.html)
+------------------------------------------------------------------ */
+:root{
+  --bg:        #F4F7F9;
+  --surface:   #FFFFFF;
+  --ink:       #12232F;
+  --ink-2:     #3E5566;
+  --ink-3:     #7A8E9C;
+  --line:      #D8E0E6;
+  --line-2:    #E8EEF2;
+  --accent:    #1F7AE0;
+  --accent-2:  #74B4FF;
+  --accent-ink:#0E4E9B;
+  --glow:      rgba(31,122,224,.18);
+  --track:     #E8EEF2;
+  --baseline:  #9AABB8;
+  --radius: 10px;
+  --maxw: 960px;
+  color-scheme: light;
+}
+[data-theme="dark"]{
+  --bg:        #0C161F;
+  --surface:   #122230;
+  --ink:       #E6EEF4;
+  --ink-2:     #B3C2CE;
+  --ink-3:     #7F94A5;
+  --line:      #24384A;
+  --line-2:    #1A2C3B;
+  --accent:    #4FA3FF;
+  --accent-2:  #1F7AE0;
+  --accent-ink:#9CCBFF;
+  --glow:      rgba(79,163,255,.25);
+  --track:     #1A2C3B;
+  --baseline:  #5F7186;
+  color-scheme: dark;
+}
+
+*{box-sizing:border-box}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+body{
+  margin:0;
+  font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  font-size:16px; line-height:1.55;
+  color:var(--ink); background:var(--bg);
+  -webkit-font-smoothing:antialiased;
+  transition:background .3s ease,color .3s ease;
+}
+a{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .15s}
+a:hover{border-bottom-color:currentColor}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+h1,h2,h3{margin:0;line-height:1.2;font-weight:600;letter-spacing:-.01em}
+p{margin:0}
+ul{list-style:none;margin:0;padding:0}
+
+/* ------------------------------------------------------------------
+   Layout
+------------------------------------------------------------------ */
+.wrap{max-width:var(--maxw);margin:0 auto;padding:36px 28px 80px}
+section{padding:40px 0;border-top:1px solid var(--line)}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.section-head h2{font-size:24px;font-weight:600;letter-spacing:-.02em}
+.meta{font-size:13px;color:var(--ink-3)}
+
+/* ------------------------------------------------------------------
+   Header
+------------------------------------------------------------------ */
+.back{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--ink-3);border:0}
+.back:hover{color:var(--ink)}
+.back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+header{padding-bottom:40px}
+.eyebrow{margin-top:28px;font-size:14px;color:var(--ink-3)}
+h1{font-size:40px;font-weight:700;letter-spacing:-.025em;line-height:1.05;margin-top:6px}
+.lede{font-family:"IBM Plex Serif",Georgia,serif;font-size:21px;line-height:1.5;max-width:62ch;margin-top:16px}
+
+/* ------------------------------------------------------------------
+   Headline figures (matches .impact on index.html)
+------------------------------------------------------------------ */
+.impact{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:26px}
+.impact div{padding:14px 16px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.impact strong{display:block;font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.impact span{display:block;font-size:13.5px;color:var(--ink-2)}
+.impact small{display:block;font-size:13px;color:var(--ink-3);margin-top:4px}
+
+/* ------------------------------------------------------------------
+   Bars
+------------------------------------------------------------------ */
+.bars{display:grid;gap:16px}
+.bar-row{display:grid;grid-template-columns:240px minmax(0,1fr) 120px;gap:16px;align-items:center}
+.bar-row .name{font-size:15px;font-weight:600}
+.bar-row .basis{font-size:13px;color:var(--ink-3)}
+.track{height:14px;background:var(--track);border-radius:3px;overflow:hidden}
+.fill{height:100%;background:linear-gradient(90deg,var(--accent-2),var(--accent));border-radius:3px;min-width:4px;transform-origin:left;animation:grow .8s cubic-bezier(.2,.8,.2,1) both}
+.fill.base{background:var(--baseline)}
+@keyframes grow{from{transform:scaleX(.02)}to{transform:scaleX(1)}}
+.val{text-align:right;font-variant-numeric:tabular-nums}
+.val .h{font-size:16px;font-weight:600}
+.val .d{font-size:13px;color:var(--ink-3)}
+
+/* ------------------------------------------------------------------
+   AP1000 panel
+------------------------------------------------------------------ */
+.panel{padding:20px 22px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);display:grid;gap:20px}
+.compare{display:grid;grid-template-columns:140px minmax(0,1fr) 100px;gap:12px 16px;align-items:center}
+.compare .k{font-size:15px;font-weight:600}
+.compare .v{text-align:right;font-size:15px;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.trio{display:flex;flex-wrap:wrap;gap:16px 48px;border-top:1px solid var(--line-2);padding-top:18px}
+.trio div{display:flex;flex-direction:column}
+.trio .n{font-size:26px;font-weight:600;letter-spacing:-.02em;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.trio .t{font-size:13.5px;color:var(--ink-2)}
+
+/* ------------------------------------------------------------------
+   Combined total
+------------------------------------------------------------------ */
+.total{display:flex;justify-content:space-between;align-items:center;gap:16px 32px;flex-wrap:wrap;padding:20px 22px;border:1px solid var(--accent);border-radius:var(--radius);background:var(--surface);box-shadow:0 0 0 4px var(--glow)}
+.total h3{font-size:16.5px;font-weight:600}
+.total p{font-size:13.5px;color:var(--ink-3);margin-top:2px}
+.total .figs{display:flex;gap:20px;align-items:baseline;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.total .n{font-size:32px;font-weight:700;letter-spacing:-.02em;color:var(--accent-ink)}
+.total .h{font-size:16px;color:var(--ink-3)}
+
+/* ------------------------------------------------------------------
+   Table
+------------------------------------------------------------------ */
+.table-box{overflow-x:auto;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:15px}
+th,td{padding:11px 16px;text-align:left;border-bottom:1px solid var(--line-2)}
+th{font-size:13px;font-weight:500;color:var(--ink-3)}
+td{color:var(--ink-2)}
+td:first-child{color:var(--ink)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td.basis{color:var(--ink-3);font-size:14px}
+tr.sum td{font-weight:600;color:var(--ink);background:var(--line-2)}
+tbody tr:last-child td{border-bottom:0}
+
+.notes{font-size:14px;color:var(--ink-3);max-width:72ch;padding-top:24px}
+.notes strong{color:var(--ink-2);font-weight:600}
+
+/* ------------------------------------------------------------------
+   Theme toggle (same as index.html)
+------------------------------------------------------------------ */
+.theme{position:fixed;right:20px;bottom:20px;width:44px;height:44px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;box-shadow:0 6px 24px rgba(0,0,0,.12);z-index:10;transition:transform .15s}
+.theme:hover{transform:scale(1.06)}
+.theme svg{width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.theme .sun{display:none}
+[data-theme="dark"] .theme .sun{display:block}
+[data-theme="dark"] .theme .moon{display:none}
+
+/* ------------------------------------------------------------------
+   Responsive
+------------------------------------------------------------------ */
+@media (max-width: 720px){
+  .wrap{padding:28px 18px 80px}
+  h1{font-size:32px}
+  .lede{font-size:18px}
+  .bar-row{grid-template-columns:minmax(0,1fr) auto;gap:6px 12px}
+  .bar-row .label{grid-column:1/-1}
+  .bar-row .track{grid-column:1}
+}
+@media (max-width: 520px){
+  .compare{grid-template-columns:minmax(0,1fr) auto}
+  .compare .track{grid-column:1/-1;order:3}
+}
+
+/* ------------------------------------------------------------------
+   Print
+------------------------------------------------------------------ */
+@media print{
+  :root{--bg:#fff;--surface:#fff;--ink:#000;--ink-2:#222;--ink-3:#555;--line:#bbb;--line-2:#ddd}
+  .theme,.back{display:none!important}
+  .wrap{padding:0;max-width:none}
+  section{padding:14pt 0}
+  .total{box-shadow:none}
+  .fill{animation:none}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+  <header>
+    <a class="back" href="index.html"><svg viewBox="0 0 24 24"><path d="M19 12H5m0 0 6-6m-6 6 6 6"/></svg>Jason Carneal's CV</a>
+    <p class="eyebrow">Summary of efficiencies realized in FY26</p>
+    <h1>Efficiencies Realized</h1>
+    <p class="lede">Automation, data visualization and AI-assisted analysis have removed thousands of hours of manual staff work each year, valued at the NRC billable rate of $318 per hour.</p>
+
+    <div class="impact" aria-label="Headline figures">
+      <div><strong>4,426</strong><span>staff hours saved per year</span><small>Recurring, across all tools</small></div>
+      <div><strong>$1.41M</strong><span>value per year</span><small>At $318 per billable hour</small></div>
+      <div><strong>2.1 FTE</strong><span>capacity returned</span><small>Based on a 2,087-hour work year</small></div>
+    </div>
+  </header>
+
+  <section aria-labelledby="by-initiative">
+    <div class="section-head">
+      <h2 id="by-initiative">Annual hours saved by initiative</h2>
+      <span class="meta">Hours / year · value at $318/hr</span>
+    </div>
+    <ul class="bars">
+      <li class="bar-row"><div class="label"><div class="name">Exam generator</div><div class="basis">92 exams × 2 cycles × 14 hrs</div></div><div class="track"><div class="fill" style="width:100%"></div></div><div class="val"><div class="h">2,576</div><div class="d">$819,168</div></div></li>
+      <li class="bar-row"><div class="label"><div class="name">High-volume visualizations</div><div class="basis">4 products × 4 hrs × 50 uses</div></div><div class="track"><div class="fill" style="width:31.1%"></div></div><div class="val"><div class="h">800</div><div class="d">$254,400</div></div></li>
+      <li class="bar-row"><div class="label"><div class="name">AI-assisted studies</div><div class="basis">6 studies × 100 hrs</div></div><div class="track"><div class="fill" style="width:23.3%"></div></div><div class="val"><div class="h">600</div><div class="d">$190,800</div></div></li>
+      <li class="bar-row"><div class="label"><div class="name">Standard visualizations</div><div class="basis">16 products × 0.5 hr × 50 uses</div></div><div class="track"><div class="fill" style="width:15.5%"></div></div><div class="val"><div class="h">400</div><div class="d">$127,200</div></div></li>
+      <li class="bar-row"><div class="label"><div class="name">Reporting &amp; help-request tools</div><div class="basis">100 uses × 0.5 hr</div></div><div class="track"><div class="fill" style="width:1.9%"></div></div><div class="val"><div class="h">50</div><div class="d">$15,900</div></div></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="ap1000">
+    <div class="section-head">
+      <h2 id="ap1000">AP1000 DCD Revision 20 rulemaking</h2>
+      <span class="meta">One-time effort</span>
+    </div>
+    <div class="panel">
+      <div class="compare">
+        <div class="k">Manual baseline</div><div class="track"><div class="fill base" style="width:100%"></div></div><div class="v">4,500 hrs</div>
+        <div class="k">As delivered</div><div class="track"><div class="fill" style="width:35.6%"></div></div><div class="v">1,600 hrs</div>
+      </div>
+      <div class="trio">
+        <div><span class="n">2,900 hrs</span><span class="t">saved</span></div>
+        <div><span class="n">64%</span><span class="t">less manual effort</span></div>
+        <div><span class="n">$922,200</span><span class="t">value</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Combined first-year value">
+    <div class="total">
+      <div>
+        <h3>Combined first-year value</h3>
+        <p>Recurring savings plus AP1000 DCD Rev. 20</p>
+      </div>
+      <div class="figs"><span class="n">$2,329,668</span><span class="h">7,326 hrs</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="detail">
+    <div class="section-head"><h2 id="detail">Detail</h2></div>
+    <div class="table-box">
+      <table>
+        <thead><tr><th>Initiative</th><th>Basis</th><th class="num">Hours saved</th><th class="num">Value</th></tr></thead>
+        <tbody>
+          <tr><td>Exam generator</td><td class="basis">92 exams × 2 cycles/yr × 14 hrs</td><td class="num">2,576 / yr</td><td class="num">$819,168</td></tr>
+          <tr><td>Visualizations, high volume (4)</td><td class="basis">4 × 4 hrs × 50 uses/yr</td><td class="num">800 / yr</td><td class="num">$254,400</td></tr>
+          <tr><td>Visualizations, standard (16)</td><td class="basis">16 × 0.5 hr × 50 uses/yr</td><td class="num">400 / yr</td><td class="num">$127,200</td></tr>
+          <tr><td>Targeted studies</td><td class="basis">6 studies/yr × 100 hrs</td><td class="num">600 / yr</td><td class="num">$190,800</td></tr>
+          <tr><td>Reporting &amp; help-request tools</td><td class="basis">100 uses/yr × 0.5 hr</td><td class="num">50 / yr</td><td class="num">$15,900</td></tr>
+          <tr class="sum"><td>Recurring annual total</td><td></td><td class="num">4,426 / yr</td><td class="num">$1,407,468</td></tr>
+          <tr><td>AP1000 DCD Rev. 20 (one-time)</td><td class="basis">4,500 → 1,600 hrs</td><td class="num">2,900</td><td class="num">$922,200</td></tr>
+          <tr class="sum"><td>Combined first-year total</td><td></td><td class="num">7,326</td><td class="num">$2,329,668</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="notes"><strong>Assumptions.</strong> FTE equivalent uses the 2,087-hour federal work year. Standard visualization products assume 50 accesses per year each. Reporting and help-request tools assume 100 uses per year in total. Figures are order-of-magnitude estimates based on staff-reported time per task.</p>
+  </section>
+</div>
+
+<button class="theme" id="theme" type="button" aria-label="Toggle dark mode">
+  <svg class="moon" viewBox="0 0 24 24"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></svg>
+  <svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+</button>
+
+<script>
+(() => {
+  /* Theme — shares the 'cv-theme' setting with index.html */
+  const root = document.documentElement;
+  let saved = null;
+  try { saved = localStorage.getItem('cv-theme'); } catch (e) {}
+  if (saved) root.dataset.theme = saved;
+  else if (matchMedia('(prefers-color-scheme: dark)').matches) root.dataset.theme = 'dark';
+  document.getElementById('theme').addEventListener('click', () => {
+    root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    try { localStorage.setItem('cv-theme', root.dataset.theme); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>
