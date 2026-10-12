@@ -57,6 +57,7 @@ html{scroll-behavior:smooth}
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
   *,*::before,*::after{animation:none!important;transition:none!important}
+  .role .cursor{animation:blink 1.1s steps(1) infinite!important}
 }
 body{
   margin:0;
@@ -787,11 +788,8 @@ section:first-of-type{border-top:0;padding-top:0}
   /* ---------- Rotating role line ---------- */
   const roles = ['Engineering Generalist','Senior Data Scientist','AI & Data Strategist','Licensing Project Manager','Naval Architect','Builder of useful tools'];
   const roleEl = $('#role-text');
-  if (reduced) {
-    // Reduced motion: no typewriter effect, just swap the role in place.
-    let i = 0;
-    setInterval(() => { i = (i+1) % roles.length; roleEl.textContent = roles[i]; }, 3200);
-  } else {
+  // Typewriter runs regardless of prefers-reduced-motion (intentional).
+  {
     let i = 0;
     const type = (txt, cb) => { let n = 0; const t = setInterval(() => { roleEl.textContent = txt.slice(0, ++n); if (n >= txt.length) { clearInterval(t); cb && cb(); } }, 38); };
     const erase = cb => { const t = setInterval(() => { roleEl.textContent = roleEl.textContent.slice(0, -1); if (!roleEl.textContent.length) { clearInterval(t); cb && cb(); } }, 22); };
