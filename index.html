@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" href="static/favicon64.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Serif:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Serif:ital,wght@0,400;1,400&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 
 <style>
 /* ------------------------------------------------------------------
@@ -56,7 +56,8 @@
 html{scroll-behavior:smooth}
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
-  *,*::before,*::after{animation:none!important;transition:none!important}
+  /* the business card (.bc) keeps its motion regardless (intentional) */
+  :not(.bc *),:not(.bc *)::before,:not(.bc *)::after{animation:none!important;transition:none!important}
   .role .cursor{animation:blink 1.1s steps(1) infinite!important}
 }
 body{
@@ -246,6 +247,164 @@ section:first-of-type{border-top:0;padding-top:0}
 .count{font-size:13px;color:var(--ink-3)}
 
 /* ------------------------------------------------------------------
+   Business card — keeps its own dark printed-card palette in both themes.
+   The front builds itself, flips, and the back cycles resume highlights.
+------------------------------------------------------------------ */
+.bc{
+  --bc-ink:#0e1420; --bc-ink-2:#162032; --bc-ring:rgba(70,104,148,.22); --bc-rule:#2c3c56;
+  --bc-paper:#f0f4f8; --bc-muted:#94a3b8; --bc-teal:#38bda6;
+  --bc-font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --bc-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  display:grid;gap:16px;
+  /* card is ~1.75:1 — cap the width so card + controls fit in the window height */
+  max-width:min(880px,calc((100vh - 170px) * 1.75));
+  max-width:min(880px,calc((100svh - 170px) * 1.75))
+}
+.bc-stage{container-type:inline-size;perspective:2200px}
+.bc-card{
+  --u:1cqw; --r:calc(var(--u) * 2.2);
+  display:grid;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.6,.05,.25,1);
+  cursor:pointer;border-radius:var(--r);outline:none;color:var(--bc-paper);font-family:var(--bc-font);line-height:normal
+}
+.bc-card:focus-visible{outline:none;border-radius:var(--r);box-shadow:0 0 0 3px var(--bc-teal)}
+.bc-card.bc-flipped{transform:rotateY(180deg)}
+.bc-face{
+  grid-area:1/1;position:relative;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:inherit;min-height:calc(var(--u) * 57.14);
+  background:linear-gradient(100deg,var(--bc-ink) 0%,var(--bc-ink-2) 100%);
+  box-shadow:0 30px 60px -30px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.04) inset;
+  padding:calc(var(--u) * 6.4) calc(var(--u) * 7)
+}
+.bc-back{transform:rotateY(180deg)}
+
+/* contour rings from the top-right corner, drifting outward, with one slow pulse */
+@property --bc-off{syntax:"<length>";inherits:false;initial-value:0px}
+.bc-rings,.bc-rings::after{position:absolute;pointer-events:none}
+.bc-rings{
+  inset:0;
+  background:repeating-radial-gradient(circle at 86% -22%,var(--bc-ring) var(--bc-off),var(--bc-ring) calc(var(--bc-off) + var(--u) * .12),transparent calc(var(--bc-off) + var(--u) * .12),transparent calc(var(--bc-off) + var(--u) * 3.3));
+  -webkit-mask-image:radial-gradient(circle at 86% -22%,#000 30%,transparent 78%);
+          mask-image:radial-gradient(circle at 86% -22%,#000 30%,transparent 78%);
+  animation:bc-drift 6s linear infinite
+}
+@keyframes bc-drift{from{--bc-off:0px}to{--bc-off:calc(var(--u) * 3.3)}}
+.bc-rings::after{
+  content:"";left:86%;top:-22%;width:calc(var(--u) * 10);height:calc(var(--u) * 10);
+  margin:calc(var(--u) * -5) 0 0 calc(var(--u) * -5);border-radius:50%;border:1px solid var(--bc-teal);
+  opacity:0;animation:bc-pulse 7s ease-out 2.4s infinite
+}
+@keyframes bc-pulse{0%{transform:scale(1);opacity:.8}70%{opacity:0}100%{transform:scale(14);opacity:0}}
+
+/* front */
+.bc-front{display:grid;grid-template-columns:1fr auto;grid-template-areas:"left right";align-items:center;gap:calc(var(--u) * 4)}
+.bc-f-left{grid-area:left;display:grid;align-content:center;position:relative}
+.bc-f-right{grid-area:right;display:grid;justify-items:center;gap:calc(var(--u) * 1.8);position:relative}
+.bc-logo{display:flex;align-items:center;gap:calc(var(--u) * 1.5);margin-bottom:calc(var(--u) * 5.2)}
+.bc-badge{width:calc(var(--u) * 5.3);height:calc(var(--u) * 5.3);display:block}
+.bc-badge rect{fill:var(--bc-teal)}
+.bc-badge path{fill:none;stroke:var(--bc-ink);stroke-width:8.5;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:70;stroke-dashoffset:0}
+.bc-wordmark{font-weight:800;font-size:calc(var(--u) * 3.4);letter-spacing:.14em;line-height:1;display:flex}
+.bc-wordmark span{display:inline-block;white-space:pre}
+.bc-name{font-weight:700;font-size:calc(var(--u) * 6.1);line-height:1.04;letter-spacing:-.02em}
+.bc-name .bc-line{display:block;overflow:hidden;padding-bottom:.04em}
+.bc-name .bc-line > span{display:inline-block}
+.bc-name .bc-line:first-child{font-weight:600}
+.bc-title{margin-top:calc(var(--u) * 2.4);color:var(--bc-teal);font-weight:600;font-size:max(11px,calc(var(--u) * 1.9));letter-spacing:.18em;text-transform:uppercase}
+.bc-rule{height:1px;background:var(--bc-rule);border:0;margin:calc(var(--u) * 6.2) 0 calc(var(--u) * 2.4);transform-origin:left;width:100%}
+.bc-contact{margin:0;display:grid;gap:calc(var(--u) * 1.1);font-size:max(13px,calc(var(--u) * 2.1))}
+.bc-contact div{display:flex;align-items:baseline;gap:calc(var(--u) * 1.6)}
+.bc-contact dt{color:var(--bc-teal);font-weight:600;font-size:.72em;width:1.2em}
+.bc-contact dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.bc-contact a{color:inherit;border-bottom:1px solid transparent}
+.bc-contact a:hover,.bc-contact a:focus-visible{border-color:var(--bc-teal);outline:none}
+.bc-qr,.bc-qr:hover{
+  position:relative;display:block;width:calc(var(--u) * 30.5);aspect-ratio:1;max-width:100%;
+  background:#fff;border:0;border-radius:calc(var(--u) * 2.1);padding:calc(var(--u) * 2.5);overflow:hidden
+}
+.bc-qr svg{display:block;width:100%;height:100%}
+.bc-qr svg path{fill:var(--bc-ink)}
+.bc-qr .bc-scan{position:absolute;left:0;right:0;top:0;height:3px;background:var(--bc-teal);box-shadow:0 0 18px 4px rgba(56,189,166,.55);opacity:0}
+.bc-cap{color:var(--bc-muted);font-size:max(11px,calc(var(--u) * 1.6));font-weight:500}
+
+/* intro sequence — runs when the script adds .bc-intro; held paused until the card scrolls into view */
+.bc-card:not(.bc-live) *,.bc-card:not(.bc-live) *::after{animation-play-state:paused}
+.bc-intro .bc-badge rect{animation:bc-pop .55s cubic-bezier(.3,1.6,.5,1) .1s both;transform-origin:center;transform-box:fill-box}
+.bc-intro .bc-badge path{animation:bc-draw .5s ease-out .5s both}
+.bc-intro .bc-wordmark span{animation:bc-rise .45s ease-out both;animation-delay:calc(.7s + var(--i) * 60ms)}
+.bc-intro .bc-name .bc-line > span{animation:bc-slide .8s cubic-bezier(.2,.8,.2,1) both}
+.bc-intro .bc-name .bc-line:nth-child(1) > span{animation-delay:.9s}
+.bc-intro .bc-name .bc-line:nth-child(2) > span{animation-delay:1.02s}
+.bc-intro .bc-title{animation:bc-track 1s cubic-bezier(.2,.8,.2,1) 1.3s both}
+.bc-intro .bc-rule{animation:bc-grow .8s ease-out 1.6s both}
+.bc-intro .bc-contact div{animation:bc-rise .5s ease-out both}
+.bc-intro .bc-contact div:nth-child(1){animation-delay:1.85s}
+.bc-intro .bc-contact div:nth-child(2){animation-delay:1.95s}
+.bc-intro .bc-qr svg{animation:bc-reveal 1.1s linear 1.1s both}
+.bc-intro .bc-qr .bc-scan{animation:bc-scan 1.1s linear 1.1s both}
+.bc-intro .bc-qr{animation:bc-fade .5s ease-out .8s both}
+.bc-intro .bc-cap{animation:bc-rise .5s ease-out 2.2s both}
+@keyframes bc-pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+@keyframes bc-draw{from{stroke-dashoffset:70}to{stroke-dashoffset:0}}
+@keyframes bc-rise{from{transform:translateY(.6em);opacity:0}to{transform:none;opacity:1}}
+@keyframes bc-slide{from{transform:translateY(105%)}to{transform:none}}
+@keyframes bc-track{from{letter-spacing:.6em;opacity:0}to{letter-spacing:.18em;opacity:1}}
+@keyframes bc-grow{from{transform:scaleX(0)}to{transform:none}}
+@keyframes bc-fade{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes bc-reveal{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes bc-scan{0%{top:0;opacity:1}92%{opacity:1}100%{top:100%;opacity:0}}
+
+/* back */
+.bc-back{display:grid;grid-template-rows:auto 1fr auto;gap:calc(var(--u) * 3)}
+.bc-head{display:flex;align-items:center;gap:calc(var(--u) * 1.4);position:relative}
+.bc-head .bc-badge{width:calc(var(--u) * 3.4);height:calc(var(--u) * 3.4)}
+.bc-eyebrow{font-size:max(11px,calc(var(--u) * 1.6));font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--bc-muted)}
+.bc-count{margin-left:auto;font-family:var(--bc-mono);font-size:max(11px,calc(var(--u) * 1.6));color:var(--bc-muted);font-variant-numeric:tabular-nums}
+.bc-count b{color:var(--bc-paper);font-weight:500}
+.bc-hl{position:relative;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);align-items:center;gap:calc(var(--u) * 5)}
+.bc-stat{display:grid;gap:calc(var(--u) * .6)}
+.bc-num{font-weight:800;font-size:calc(var(--u) * 12);line-height:.9;letter-spacing:-.04em;color:var(--bc-teal);font-variant-numeric:tabular-nums}
+.bc-unit{font-size:max(12px,calc(var(--u) * 1.9));font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--bc-paper)}
+.bc-copy{display:grid;gap:calc(var(--u) * 1.3);min-width:0}
+.bc-when{font-family:var(--bc-mono);font-size:max(11px,calc(var(--u) * 1.55));color:var(--bc-teal)}
+.bc-copy h3{font-size:max(17px,calc(var(--u) * 3.4));line-height:1.15;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
+.bc-detail{color:var(--bc-muted);font-size:max(13px,calc(var(--u) * 1.95));line-height:1.5;max-width:42ch}
+.bc-hl.bc-swap .bc-stat,.bc-hl.bc-swap .bc-copy > *{animation:bc-rise .55s cubic-bezier(.2,.8,.2,1) both}
+.bc-hl.bc-swap .bc-copy > :nth-child(1){animation-delay:.08s}
+.bc-hl.bc-swap .bc-copy > :nth-child(2){animation-delay:.16s}
+.bc-hl.bc-swap .bc-copy > :nth-child(3){animation-delay:.24s}
+.bc-bars{display:grid;grid-auto-flow:column;gap:6px;position:relative}
+.bc-bars button{all:unset;cursor:pointer;height:14px;display:grid;align-items:center}
+.bc-bars button::before{content:"";height:3px;border-radius:2px;background:var(--bc-rule);grid-area:1/1}
+.bc-bars button i{grid-area:1/1;height:3px;border-radius:2px;background:var(--bc-teal);transform-origin:left;transform:scaleX(0)}
+.bc-bars button.bc-done i{transform:none}
+.bc-bars button.bc-on i{transform:scaleX(var(--p,0))}
+.bc-bars button:focus-visible::before{outline:2px solid var(--bc-teal);outline-offset:4px}
+
+.bc-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.bc-hint{margin-left:auto;color:var(--ink-3);font-size:13px}
+
+/* narrow cards: stack */
+@container (max-width: 600px){
+  .bc-card{--u:2cqw;--r:18px}
+  .bc-face{min-height:0;padding:26px 22px}
+  .bc-front{grid-template-columns:1fr;grid-template-areas:"left" "right";gap:22px}
+  .bc-f-right{justify-items:start;grid-template-columns:auto 1fr;align-items:end;gap:14px}
+  .bc-qr,.bc-qr:hover{width:132px;padding:10px;border-radius:12px}
+  .bc-cap{align-self:end}
+  .bc-name{font-size:40px}
+  .bc-logo{margin-bottom:28px}
+  .bc-badge{width:40px;height:40px}
+  .bc-wordmark{font-size:26px}
+  .bc-rule{margin:24px 0 14px}
+  .bc-back{gap:22px}
+  .bc-head .bc-badge{width:26px;height:26px}
+  .bc-hl{grid-template-columns:1fr;gap:14px;align-content:start}
+  .bc-num{font-size:64px}
+  .bc-detail{max-width:none}
+}
+@media (max-width: 640px){ .bc-hint{display:none} }
+
+/* ------------------------------------------------------------------
    Utilities & toggles
 ------------------------------------------------------------------ */
 .theme{position:fixed;right:20px;bottom:20px;width:44px;height:44px;border-radius:50%;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;box-shadow:0 6px 24px rgba(0,0,0,.12);z-index:10;transition:transform .15s}
@@ -299,7 +458,7 @@ section:first-of-type{border-top:0;padding-top:0}
   .rail{position:static;max-height:none;overflow:visible;padding:0 0 12pt}
   .identity{flex-direction:row;align-items:center;gap:16pt}
   .avatar{width:60pt;height:60pt;box-shadow:none}
-  .actions,nav.toc,.theme,.totop,.progress,.filters,.search,.career,.map-note,.empty,.count,.chev{display:none!important}
+  .actions,nav.toc,.theme,.totop,.progress,.filters,.search,.career,.map-note,.empty,.count,.chev,#business-card{display:none!important}
   .role .cursor{display:none}
   section{padding:14pt 0;break-inside:auto}
   .job{page-break-inside:avoid;padding-left:0}
@@ -345,6 +504,7 @@ section:first-of-type{border-top:0;padding-top:0}
 
     <nav class="toc" aria-label="Sections">
       <a href="#about">About</a>
+      <a href="#business-card">Business card</a>
       <a href="#experience">Experience</a>
       <a href="#skills">Skills</a>
       <a href="#education">Education &amp; awards</a>
@@ -384,6 +544,65 @@ section:first-of-type{border-top:0;padding-top:0}
           <div id="lanes"></div>
         </div>
         <p class="map-note">Bettica Services (2009–2013) ran alongside NRC and Navy roles.</p>
+      </div>
+    </section>
+
+    <!-- BUSINESS CARD -->
+    <section id="business-card">
+      <div class="section-head"><h2>Business card</h2></div>
+      <div class="bc">
+        <div class="bc-stage">
+          <div class="bc-card" id="bc-card" role="button" tabindex="0" aria-label="Business card. Press to flip between contact details and resume highlights.">
+            <div class="bc-face bc-front" role="group" aria-label="Card front">
+              <div class="bc-rings"></div>
+              <div class="bc-f-left">
+                <div class="bc-logo" aria-label="DO IT">
+                  <svg class="bc-badge" viewBox="0 0 56 56" aria-hidden="true"><rect width="56" height="56" rx="13"/><path d="M14 29 L24 39 L42 18"/></svg>
+                  <span class="bc-wordmark" aria-hidden="true"><span style="--i:0">D</span><span style="--i:1">O</span><span style="--i:2"> </span><span style="--i:3">I</span><span style="--i:4">T</span></span>
+                </div>
+                <p class="bc-name"><span class="bc-line"><span>Jason</span></span><span class="bc-line"><span>Carneal</span></span></p>
+                <p class="bc-title">Senior Data Scientist</p>
+                <hr class="bc-rule">
+                <dl class="bc-contact">
+                  <div><dt>E</dt><dd>jbc4@pm.me</dd></div>
+                  <div><dt>W</dt><dd><a href="https://thenealrises.com" target="_blank" rel="noopener">thenealrises.com</a></dd></div>
+                </dl>
+              </div>
+              <div class="bc-f-right">
+                <a class="bc-qr" href="https://thenealrises.com" target="_blank" rel="noopener" aria-label="QR code for thenealrises.com">
+                  <svg viewBox="0 0 25 25" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM10 0h1v1h-1zM12 0h1v1h-1zM13 0h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM21 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM9 1h1v1h-1zM11 1h1v1h-1zM12 1h1v1h-1zM13 1h1v1h-1zM16 1h1v1h-1zM18 1h1v1h-1zM24 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM8 2h1v1h-1zM10 2h1v1h-1zM11 2h1v1h-1zM12 2h1v1h-1zM13 2h1v1h-1zM15 2h1v1h-1zM16 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM21 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM9 3h1v1h-1zM10 3h1v1h-1zM13 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM18 3h1v1h-1zM20 3h1v1h-1zM21 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM10 4h1v1h-1zM11 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM18 4h1v1h-1zM20 4h1v1h-1zM21 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h1v1h-1zM11 5h1v1h-1zM14 5h1v1h-1zM18 5h1v1h-1zM24 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM20 6h1v1h-1zM21 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM9 7h1v1h-1zM12 7h1v1h-1zM14 7h1v1h-1zM15 7h1v1h-1zM0 8h1v1h-1zM2 8h1v1h-1zM6 8h1v1h-1zM7 8h1v1h-1zM10 8h1v1h-1zM11 8h1v1h-1zM12 8h1v1h-1zM15 8h1v1h-1zM19 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM4 9h1v1h-1zM9 9h1v1h-1zM10 9h1v1h-1zM11 9h1v1h-1zM12 9h1v1h-1zM14 9h1v1h-1zM15 9h1v1h-1zM16 9h1v1h-1zM18 9h1v1h-1zM19 9h1v1h-1zM21 9h1v1h-1zM23 9h1v1h-1zM24 9h1v1h-1zM0 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM14 10h1v1h-1zM15 10h1v1h-1zM16 10h1v1h-1zM17 10h1v1h-1zM19 10h1v1h-1zM20 10h1v1h-1zM21 10h1v1h-1zM22 10h1v1h-1zM24 10h1v1h-1zM0 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM10 11h1v1h-1zM14 11h1v1h-1zM16 11h1v1h-1zM19 11h1v1h-1zM21 11h1v1h-1zM0 12h1v1h-1zM1 12h1v1h-1zM2 12h1v1h-1zM3 12h1v1h-1zM5 12h1v1h-1zM6 12h1v1h-1zM7 12h1v1h-1zM8 12h1v1h-1zM10 12h1v1h-1zM14 12h1v1h-1zM16 12h1v1h-1zM18 12h1v1h-1zM24 12h1v1h-1zM1 13h1v1h-1zM5 13h1v1h-1zM9 13h1v1h-1zM13 13h1v1h-1zM15 13h1v1h-1zM16 13h1v1h-1zM18 13h1v1h-1zM19 13h1v1h-1zM23 13h1v1h-1zM24 13h1v1h-1zM0 14h1v1h-1zM1 14h1v1h-1zM6 14h1v1h-1zM11 14h1v1h-1zM15 14h1v1h-1zM18 14h1v1h-1zM21 14h1v1h-1zM22 14h1v1h-1zM24 14h1v1h-1zM2 15h1v1h-1zM3 15h1v1h-1zM4 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM9 15h1v1h-1zM17 15h1v1h-1zM19 15h1v1h-1zM20 15h1v1h-1zM21 15h1v1h-1zM0 16h1v1h-1zM1 16h1v1h-1zM2 16h1v1h-1zM3 16h1v1h-1zM5 16h1v1h-1zM6 16h1v1h-1zM9 16h1v1h-1zM11 16h1v1h-1zM12 16h1v1h-1zM15 16h1v1h-1zM16 16h1v1h-1zM17 16h1v1h-1zM18 16h1v1h-1zM19 16h1v1h-1zM20 16h1v1h-1zM23 16h1v1h-1zM8 17h1v1h-1zM12 17h1v1h-1zM16 17h1v1h-1zM20 17h1v1h-1zM24 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM3 18h1v1h-1zM4 18h1v1h-1zM5 18h1v1h-1zM6 18h1v1h-1zM8 18h1v1h-1zM12 18h1v1h-1zM14 18h1v1h-1zM16 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM24 18h1v1h-1zM0 19h1v1h-1zM6 19h1v1h-1zM11 19h1v1h-1zM12 19h1v1h-1zM14 19h1v1h-1zM15 19h1v1h-1zM16 19h1v1h-1zM20 19h1v1h-1zM0 20h1v1h-1zM2 20h1v1h-1zM3 20h1v1h-1zM4 20h1v1h-1zM6 20h1v1h-1zM9 20h1v1h-1zM12 20h1v1h-1zM15 20h1v1h-1zM16 20h1v1h-1zM17 20h1v1h-1zM18 20h1v1h-1zM19 20h1v1h-1zM20 20h1v1h-1zM23 20h1v1h-1zM0 21h1v1h-1zM2 21h1v1h-1zM3 21h1v1h-1zM4 21h1v1h-1zM6 21h1v1h-1zM10 21h1v1h-1zM13 21h1v1h-1zM15 21h1v1h-1zM17 21h1v1h-1zM20 21h1v1h-1zM22 21h1v1h-1zM23 21h1v1h-1zM0 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM9 22h1v1h-1zM10 22h1v1h-1zM11 22h1v1h-1zM16 22h1v1h-1zM17 22h1v1h-1zM19 22h1v1h-1zM20 22h1v1h-1zM21 22h1v1h-1zM23 22h1v1h-1zM24 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM9 23h1v1h-1zM12 23h1v1h-1zM14 23h1v1h-1zM16 23h1v1h-1zM17 23h1v1h-1zM18 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM0 24h1v1h-1zM1 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM5 24h1v1h-1zM6 24h1v1h-1zM8 24h1v1h-1zM10 24h1v1h-1zM12 24h1v1h-1zM16 24h1v1h-1zM17 24h1v1h-1zM21 24h1v1h-1zM24 24h1v1h-1z"/></svg>
+                  <span class="bc-scan"></span>
+                </a>
+                <p class="bc-cap">Scan to connect</p>
+              </div>
+            </div>
+
+            <div class="bc-face bc-back" role="group" aria-label="Resume highlights">
+              <div class="bc-rings"></div>
+              <div class="bc-head">
+                <svg class="bc-badge" viewBox="0 0 56 56" aria-hidden="true"><rect width="56" height="56" rx="13"/><path d="M14 29 L24 39 L42 18"/></svg>
+                <span class="bc-eyebrow">Highlights</span>
+                <span class="bc-count" id="bc-count"><b>01</b> / 08</span>
+              </div>
+              <div class="bc-hl" id="bc-hl" aria-live="polite">
+                <div class="bc-stat"><span class="bc-num" id="bc-num">20+</span><span class="bc-unit" id="bc-unit">years</span></div>
+                <div class="bc-copy">
+                  <p class="bc-when" id="bc-when">2004 – now</p>
+                  <h3 id="bc-head">Engineering, regulation and data science</h3>
+                  <p class="bc-detail" id="bc-detail">From Navy hydrodynamics labs to leading agency-wide AI and data programs.</p>
+                </div>
+              </div>
+              <div class="bc-bars" id="bc-bars"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bc-controls">
+          <button class="btn" type="button" id="bc-play" aria-pressed="false"><svg viewBox="0 0 24 24" id="bc-play-icon"><path d="M8 5v14M16 5v14"/></svg><span id="bc-play-label">Pause</span></button>
+          <button class="btn" type="button" id="bc-flip"><svg viewBox="0 0 24 24"><path d="M4 8h15l-4-4M20 16H5l4 4"/></svg>Flip card</button>
+          <button class="btn" type="button" id="bc-replay"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8M3 3v5h5"/></svg>Replay</button>
+          <span class="bc-hint">Click the card to flip it</span>
+        </div>
       </div>
     </section>
 
@@ -908,6 +1127,118 @@ section:first-of-type{border-top:0;padding-top:0}
     hits.forEach(t => { const span = document.createElement('span'); span.innerHTML = t.nodeValue.replace(re, m => `<mark>${m}</mark>`); t.replaceWith(...span.childNodes); });
   };
   pubIn.addEventListener('input', filterPubs); filterPubs();
+
+  /* ---------- Business card: flip + highlight ticker ---------- */
+  // Animates regardless of prefers-reduced-motion (intentional), like the role line.
+  {
+    const H = [
+      { num: "20+", unit: "years", when: "2004 – now", head: "Engineering, regulation and data science", detail: "From Navy hydrodynamics labs to leading agency-wide AI and data programs." },
+      { num: "AI", unit: "+ data analytics", when: "2018 – 2026", head: "Leading AI and data analytics for licensing and oversight", detail: "Led the AI and data-analytics work behind licensing and oversight, including AI processes that speed up regulatory reviews." },
+      { num: "CDO", unit: "deputy", when: "2024 – 2025", head: "Deputy Chief Data Officer", detail: "Set the agency data strategy and data-governance policy, and led analytics work across the organization." },
+      { num: "30+", unit: "products", when: "2019 – 2026", head: "Products that make staff more efficient", detail: "Web apps that automate manual processes, Power BI and Tableau dashboards, automated reporting and help-request tools, and an exam generator." },
+      { num: "$2.4M", unit: "offset costs", when: "2026", head: "$2.4M in costs offset in 2026", detail: "AI and data products that took work off staff and offset $2.4M in agency costs in a single year." },
+      { num: "~50", unit: "engineers led", when: "2011 – 2013", head: "Ran a multi-million-dollar Navy program", detail: "Managed advanced surface combatant development at Carderock and reported to NAVSEA sponsors." },
+      { num: "2,900", unit: "hours saved", when: "AP1000 DCD Rev. 20 · one-time", head: "64% less manual effort, $922,200 in value", detail: "Cut the AP1000 DCD Revision 20 rulemaking from a 4,500-hour manual baseline to 1,600 hours as delivered." },
+      { num: "M.S.", unit: "Virginia Tech", when: "1997 – 2004", head: "Engineering Science and Mechanics", detail: "B.S. summa cum laude and M.S. at Virginia Tech, with graduate research on image processing for particle image velocimetry." }
+    ];
+    const FRONT_MS = 6500, HL_MS = 5200;
+    const card = $('#bc-card'), hl = $('#bc-hl'), bars = $('#bc-bars');
+    const pad = n => String(n).padStart(2, '0');
+
+    H.forEach((h, i) => {
+      const b = document.createElement('button'); b.type = 'button';
+      b.setAttribute('aria-label', `Highlight ${i + 1}: ${h.head}`);
+      b.appendChild(document.createElement('i'));
+      b.addEventListener('click', e => { e.stopPropagation(); go(i); });
+      bars.appendChild(b);
+    });
+
+    let step = -1;          // -1 = front, 0..7 = highlights
+    let playing = true, visible = false;
+    let elapsed = 0, last = 0, raf = 0, countRaf = 0;
+
+    const countUp = (el, text) => {
+      cancelAnimationFrame(countRaf);
+      const m = text.match(/^(\D*)(\d+)(\D*)$/);
+      if (!m) { el.textContent = text; return; }
+      const [, pre, digits, post] = m, target = +digits, t0 = performance.now();
+      const tick = t => {
+        const k = Math.min(1, (t - t0) / 900), e = 1 - Math.pow(1 - k, 3);
+        el.textContent = pre + Math.round(target * e) + post;
+        if (k < 1) countRaf = requestAnimationFrame(tick);
+      };
+      countRaf = requestAnimationFrame(tick);
+    };
+
+    const showHighlight = i => {
+      const h = H[i];
+      $('#bc-unit').textContent = h.unit;
+      $('#bc-when').textContent = h.when;
+      $('#bc-head').textContent = h.head;
+      $('#bc-detail').textContent = h.detail;
+      countUp($('#bc-num'), h.num);
+      $('#bc-count').innerHTML = `<b>${pad(i + 1)}</b> / ${pad(H.length)}`;
+      hl.classList.remove('bc-swap'); void hl.offsetWidth; hl.classList.add('bc-swap');
+      [...bars.children].forEach((b, j) => {
+        b.classList.toggle('bc-done', j < i);
+        b.classList.toggle('bc-on', j === i);
+        b.style.setProperty('--p', 0);
+      });
+    };
+
+    const intro = () => {
+      card.classList.remove('bc-intro'); void card.offsetWidth; card.classList.add('bc-intro');
+    };
+
+    const go = i => {
+      elapsed = 0; step = i;
+      if (i < 0) { card.classList.remove('bc-flipped'); setTimeout(intro, 350); }
+      else { card.classList.add('bc-flipped'); showHighlight(i); }
+    };
+    const next = () => step < H.length - 1 ? go(step + 1) : go(-1);
+    const flip = () => go(step < 0 ? 0 : -1);
+
+    // Only ticks while the card is on screen, so it never advances unseen.
+    const loop = t => {
+      if (!visible) { raf = 0; return; }
+      const dt = last ? t - last : 0; last = t;
+      if (playing) {
+        elapsed += dt;
+        const dur = step < 0 ? FRONT_MS : HL_MS;
+        if (step >= 0) bars.children[step].style.setProperty('--p', Math.min(1, elapsed / dur));
+        if (elapsed >= dur) next();
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    const start = () => { if (!raf) { last = 0; raf = requestAnimationFrame(loop); } };
+
+    const setPlaying = p => {
+      playing = p;
+      $('#bc-play-label').textContent = p ? 'Pause' : 'Play';
+      $('#bc-play').setAttribute('aria-pressed', String(!p));
+      $('#bc-play-icon').innerHTML = p ? '<path d="M8 5v14M16 5v14"/>' : '<path d="M7 4v16l13-8z"/>';
+    };
+
+    card.addEventListener('click', e => { if (!e.target.closest('a, button')) flip(); });
+    card.addEventListener('keydown', e => {
+      if (e.target !== card) return;
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); flip(); }
+      if (e.key === 'ArrowRight') next();
+      if (e.key === 'ArrowLeft') go(step <= 0 ? -1 : step - 1);
+    });
+    $('#bc-flip').addEventListener('click', flip);
+    $('#bc-play').addEventListener('click', () => setPlaying(!playing));
+    $('#bc-replay').addEventListener('click', () => { setPlaying(true); go(-1); });
+    document.addEventListener('visibilitychange', () => { last = 0; });
+
+    setPlaying(playing);
+    showHighlight(0);
+    intro();   // animations stay paused until .bc-live is added on first view
+    const live = () => { visible = true; card.classList.add('bc-live'); start(); };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => { if (e.isIntersecting) live(); else visible = false; }, {threshold:.35}).observe(card);
+    } else live();
+  }
 
   /* ---------- Deep link: #job-N opens that role ---------- */
   const openHash = () => { const el = location.hash && $(location.hash); if (el && el.classList.contains('job')) { applyFilter('all'); el.open = true; } };
