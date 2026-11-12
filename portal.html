@@ -120,9 +120,12 @@ const APPS = [
   for (const app of APPS) {
     const el = document.createElement(app.soon ? 'div' : 'a');
     el.className = 'tile' + (app.soon ? ' soon' : '');
+    // Links to other sites (e.g. *.netlify.app) open in a new tab.
+    const external = !app.soon && new URL(app.href, location.href).origin !== location.origin;
     if (!app.soon) el.href = app.href;
+    if (external) { el.target = '_blank'; el.rel = 'noopener'; }
     el.innerHTML = `<span class="ic"><svg viewBox="0 0 24 24">${app.icon}</svg></span>
-      <h2></h2><p></p>${app.soon ? '' : '<span class="go">Open →</span>'}`;
+      <h2></h2><p></p>${app.soon ? '' : `<span class="go">Open ${external ? '↗' : '→'}</span>`}`;
     el.querySelector('h2').textContent = app.title;
     el.querySelector('p').textContent = app.desc;
     grid.appendChild(el);

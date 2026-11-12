@@ -6,13 +6,13 @@
   <title>Jason Carneal</title>
   <meta name="robots" content="noindex">
   <link rel="icon" type="image/png" href="static/favicon64.png"/>
-  <!-- The resume lives in private Supabase storage; view.html loads it after sign-in. -->
+  <!-- Content lives in private Supabase storage; the portal links to it after sign-in. -->
   <script>
     // Invite / password-reset / confirmation links (#access_token=…&type=…) go to the
-    // login page so the user can set a password; everyone else goes to the resume.
+    // login page so the user can set a password; everyone else goes to the portal.
     location.replace(/(^|[#&])(access_token|error_description|type)=/.test(location.hash)
       ? 'login.html' + location.hash
-      : 'view.html?p=resume.html' + location.hash);
+      : 'portal.html' + location.hash);
   </script>
   <noscript><meta http-equiv="refresh" content="0; url=login.html"></noscript>
 </head>
