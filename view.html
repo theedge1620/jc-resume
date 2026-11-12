@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Loading…</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="static/favicon64.png"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+  <script src="auth/config.js"></script>
+  <script src="auth/auth.js"></script>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;background:#050B12;color:#A9BBCA;
+    font:13px/1.5 "JetBrains Mono",ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase}
+  .box{display:grid;justify-items:center;gap:22px;text-align:center;padding:16px}
+  .ping{position:relative;width:64px;height:64px}
+  .ping::before,.ping::after{content:"";position:absolute;inset:0;border-radius:50%;border:1.5px solid #4FA3FF;animation:ping 2s ease-out infinite}
+  .ping::after{animation-delay:1s}
+  .ping i{position:absolute;inset:26px;border-radius:50%;background:#FF5470;box-shadow:0 0 14px #FF5470}
+  @keyframes ping{from{transform:scale(.3);opacity:1}to{transform:scale(1.6);opacity:0}}
+  a{color:#9CCBFF}
+  .err{color:#FF8095;text-transform:none;letter-spacing:0;font-size:14px;max-width:46ch}
+</style>
+</head>
+<body>
+  <div class="box" role="status" aria-live="polite">
+    <div class="ping" aria-hidden="true"><i></i></div>
+    <div id="status">Retrieving secure content</div>
+  </div>
+
+<script>
+/* ------------------------------------------------------------------
+   view.html?p=<path>  renders an HTML page stored in the private
+   Supabase bucket. Relative links are rewritten so that:
+     • other .html pages  → view.html?p=…
+     • public site files  → served from the site (PUBLIC below)
+     • everything else    → short-lived signed URLs from the bucket
+------------------------------------------------------------------ */
+(async () => {
+  const BUCKET = (SiteAuth.config.bucket || 'private-site');
+  const URL_TTL = 6 * 60 * 60;   // signed asset links last 6 hours
+  const PUBLIC = new Set(['login.html', 'portal.html', 'view.html', 'static/favicon64.png']);
+  const isPublic = p => PUBLIC.has(p) || p.startsWith('auth/');
+  const status = document.getElementById('status');
+  const fail = (text) => {
+    status.className = 'err';
+    status.innerHTML = '';
+    status.append(text + ' ');
+    const a = document.createElement('a'); a.href = SiteAuth.PORTAL; a.textContent = 'Back to portal';
+    status.append(a);
+  };
+
+  const user = await SiteAuth.requireAuth();
+  if (!user) return;
+
+  const page = new URLSearchParams(location.search).get('p') || 'index.html';
+  if (!/^[\w\-][\w\-./]*\.html$/.test(page) || page.includes('..')) return fail('Invalid page.');
+
+  const store = SiteAuth.client.storage.from(BUCKET);
+  const { data: blob, error } = await store.download(page);
+  if (error || !blob) return fail(`Couldn't load “${page}”.`);
+  const doc = new DOMParser().parseFromString(await blob.text(), 'text/html');
+
+  // Drop any leftover auth-gate scripts (the viewer already handles auth).
+  doc.querySelectorAll('script').forEach(s => {
+    const src = s.getAttribute('src') || '';
+    if (/supabase-js|(^|\/)auth\/(config|auth)\.js$/.test(src) || /^\s*SiteAuth\.requireAuth\(\);?\s*$/.test(s.textContent)) s.remove();
+  });
+
+  const site = new URL('.', location.href);
+  const fake = 'https://page.invalid/';
+  const assets = new Map();      // path → [{el, attr, hash, download}]
+  for (const el of doc.querySelectorAll('[src],[href],[poster]')) {
+    for (const attr of ['src', 'href', 'poster']) {
+      const v = el.getAttribute(attr);
+      if (!v || /^([a-z][a-z0-9+.-]*:|#|\/\/)/i.test(v) || v.includes('${')) continue;
+      const u = new URL(v, fake + page);
+      if (u.origin !== new URL(fake).origin) continue;
+      const path = decodeURIComponent(u.pathname.slice(1));
+      if (isPublic(path)) el.setAttribute(attr, new URL(path + u.search + u.hash, site).href);
+      else if (/\.html$/.test(path)) el.setAttribute(attr, 'view.html?p=' + encodeURIComponent(path) + u.hash);
+      else {
+        if (!assets.has(path)) assets.set(path, []);
+        assets.get(path).push({ el, attr, hash: u.hash, download: el.hasAttribute('download') });
+      }
+    }
+  }
+
+  await Promise.all([...assets].map(async ([path, uses]) => {
+    const plain = await store.createSignedUrl(path, URL_TTL);
+    const needsDl = uses.some(x => x.download);
+    const dl = needsDl ? await store.createSignedUrl(path, URL_TTL, { download: path.split('/').pop() }) : null;
+    for (const x of uses) {
+      const r = x.download ? dl : plain;
+      if (r && r.data) x.el.setAttribute(x.attr, r.data.signedUrl + x.hash);
+      else console.warn('[view] missing asset', path, r && r.error);
+    }
+  }));
+
+  // Swap this loader for the private page. Scripts in it run normally;
+  // window globals (SiteAuth) carry over, so its Sign-out button works.
+  const html = '<!DOCTYPE html>\n' + doc.documentElement.outerHTML;
+  document.open();
+  document.write(html);
+  document.close();
+})().catch(err => {
+  console.error(err);
+  const s = document.getElementById('status');
+  if (s) { s.className = 'err'; s.textContent = 'Something went wrong loading this page.'; }
+});
+</script>
+</body>
+</html>
