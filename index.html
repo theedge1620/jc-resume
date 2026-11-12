@@ -12,7 +12,7 @@
     // login page so the user can set a password; everyone else goes to the resume.
     location.replace(/(^|[#&])(access_token|error_description|type)=/.test(location.hash)
       ? 'login.html' + location.hash
-      : 'view.html?p=index.html' + location.hash);
+      : 'view.html?p=resume.html' + location.hash);
   </script>
   <noscript><meta http-equiv="refresh" content="0; url=login.html"></noscript>
 </head>

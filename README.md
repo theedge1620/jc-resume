@@ -9,7 +9,7 @@ The public site is only a login shell. The resume and other content live in a
 | `login.html` | Animated sign-in (sonar pings, laser sweep, atom). Handles forgot-password and invite / reset links. |
 | `portal.html` | Landing page after sign-in. Add new tools to the `APPS` list at the bottom. |
 | `view.html?p=<path>` | Downloads `<path>` from the private bucket and renders it; rewrites its links to signed URLs. |
-| `index.html` | Public stub: redirects to `view.html?p=index.html` (→ login if signed out). |
+| `index.html` | Public stub: redirects to `view.html?p=resume.html` (→ login if signed out). |
 | `auth/config.js` | Supabase URL, anon key, `allowSignup`, `bucket`. |
 | `auth/auth.js` | Shared helper: `SiteAuth.requireAuth()`, `SiteAuth.signOut()`. |
 | `private/` | **Git-ignored.** Source of the private content; mirrored into the bucket. |
